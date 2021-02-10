@@ -3,14 +3,11 @@ import { useForm } from "react-hook-form";
 import { gql, useMutation } from "@apollo/client";
 
 import FormError from "../components/form-error";
-import { loginMutation, loginMutationVariables } from "../__generated__/loginMutation";
+import { LoginMutation, LoginMutationVariables } from "../__generated__/loginMutation";
 
 const LOGIN_MUTATION = gql`
-    mutation LoginMutation($email: String!, $password: String!) {
-        login(input: {
-            email: $email,
-            password: $password
-        }) {
+    mutation LoginMutation($loginInput: LoginDto!) {
+        login(input: $loginInput) {
             ok
             token
             error
@@ -24,13 +21,27 @@ interface ILoginForm {
 }
 
 const Login = () => {
-    const { register, getValues, errors, handleSubmit } = useForm<ILoginForm>();
-    const [loginMutation] = useMutation<loginMutation, loginMutationVariables>(LOGIN_MUTATION);
+    const { register, errors, handleSubmit, watch } = useForm<ILoginForm>();
+    const onCompleted = (data: LoginMutation) => {
+        const { login: { ok, token } } = data;
+        if (ok) {
+            console.log(token);
+        }
+    };
+    const [loginMutation, { loading, data }] = useMutation<LoginMutation, LoginMutationVariables>(
+        LOGIN_MUTATION, {
+        variables: {
+            loginInput: {
+                email: watch("email"),
+                password: watch("password"),
+            }
+        },
+        onCompleted,
+    });
     const onSubmit = () => {
-        const { email, password } = getValues();
-        loginMutation({
-            variables: { email, password },
-        });
+        if (!loading) {
+            loginMutation();
+        }
     };
 
     return (
@@ -56,7 +67,7 @@ const Login = () => {
                     {errors.password?.message && <FormError errorMessage={errors.password?.message} />}
                     <button
                         className="button"
-                    >Log In</button>
+                    >{loading ? "Loading..." : "Log In"}</button>
                 </form>
             </div>
         </div>
