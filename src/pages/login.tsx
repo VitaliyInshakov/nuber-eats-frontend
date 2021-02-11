@@ -2,11 +2,13 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
+import Helmet from "react-helmet";
 
 import FormError from "../components/form-error";
 import Button from "../components/button";
 import { LoginMutation, LoginMutationVariables } from "../__generated__/LoginMutation";
 import logo from "../images/logo.svg";
+import { isLoggedInvar } from "../apollo";
 
 const LOGIN_MUTATION = gql`
     mutation LoginMutation($loginInput: LoginDto!) {
@@ -35,6 +37,7 @@ const Login = () => {
         const { login: { ok, token } } = data;
         if (ok) {
             console.log(token);
+            isLoggedInvar(true);
         }
     };
     const [loginMutation, { loading, data }] = useMutation<LoginMutation, LoginMutationVariables>(
@@ -55,6 +58,9 @@ const Login = () => {
 
     return (
         <div className="h-screen flex items-center flex-col mt-10 lg:mt-28">
+            <Helmet>
+                <title>Login | Nuber Eats</title>
+            </Helmet>
             <div className="w-full max-w-screen-sm flex flex-col px-5 items-center">
                 <img src={logo} className="w-52 mb-10" alt="logo" />
                 <h4 className="w-full font-medium text-left text-3xl mb-5">
@@ -64,11 +70,15 @@ const Login = () => {
                     <input
                         className="input"
                         placeholder="Email"
-                        ref={register({ required: "Email is required" })}
+                        ref={register({
+                            required: "Email is required",
+                            pattern: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                        })}
                         type="email"
                         name="email"
                     />
                     {errors.email?.message && <FormError errorMessage={errors.email?.message} />}
+                    {errors.email?.type === "pattern" && <FormError errorMessage="Please enter a valid email" />}
                     <input
                         className="input"
                         placeholder="Password"
