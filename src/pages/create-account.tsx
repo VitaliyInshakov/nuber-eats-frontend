@@ -2,14 +2,13 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useHistory } from "react-router-dom";
 import { gql, useMutation } from "@apollo/client";
-import Helmet from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 import FormError from "../components/form-error";
 import Button from "../components/button";
 import logo from "../images/logo.svg";
 import { UserRole } from "../__generated__/globalTypes";
 import { createAccountMutation, createAccountMutationVariables } from "../__generated__/createAccountMutation";
-import { data } from "autoprefixer";
 
 const CREATE_ACCOUNT_MUTATION = gql`
     mutation createAccountMutation($createAccountInput: CreateAccountDto!) {
@@ -42,7 +41,7 @@ const CreateAccount = () => {
 
     const history = useHistory();
     const onCompleted = (data: createAccountMutation) => {
-        const { createAccount: { ok, error } } = data;
+        const { createAccount: { ok } } = data;
 
         if (ok) {
             history.push("/login");
