@@ -24,6 +24,10 @@ export interface LoginDto {
   password: string;
 }
 
+export interface VerifyEmailDto {
+  code: string;
+}
+
 //==============================================================
 // END Enums and Input Objects
 //==============================================================
