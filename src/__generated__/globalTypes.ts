@@ -19,6 +19,11 @@ export interface CreateAccountDto {
   role: UserRole;
 }
 
+export interface EditProfileDto {
+  email?: string | null;
+  password?: string | null;
+}
+
 export interface LoginDto {
   email: string;
   password: string;
