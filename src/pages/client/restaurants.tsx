@@ -34,7 +34,7 @@ const RESTAURANTS_QUERY = gql`
 `;
 
 const Restaurants = () => {
-    const { data, loading, error } = useQuery<restaurantsPageQuery, restaurantsPageQueryVariables>(RESTAURANTS_QUERY, {
+    const { data, loading } = useQuery<restaurantsPageQuery, restaurantsPageQueryVariables>(RESTAURANTS_QUERY, {
         variables: {
             input: {
                 page: 1,
@@ -42,7 +42,32 @@ const Restaurants = () => {
         },
     });
     return (
-        <h1>Restaurants</h1>
+        <div>
+            <form className="bg-gray-800 w-full py-40 flex items-center justify-center">
+                <input
+                    className="input w-3/12 rounded-md border-0"
+                    type="text"
+                    placeholder="Search restaurants..."
+                />
+            </form>
+            <div>
+                {!loading &&
+                    <div className="max-w-screen-2xl mx-auto mt-8">
+                        <div className="flex justify-around max-w-sm mx-auto">
+                            {data?.allCategories.categories?.map(category => (
+                                <div className="flex flex-col items-center cursor-pointer">
+                                    <div
+                                        className="w-14 h-14 rounded-full bg-cover hover:bg-gray-100"
+                                        style={{ backgroundImage: `url(${category.coverImage})` }}
+                                    />
+                                    <span className="text-sm text-center font-medium">{category.name}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     );
 }
 
