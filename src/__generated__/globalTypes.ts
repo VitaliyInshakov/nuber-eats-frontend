@@ -29,6 +29,10 @@ export interface LoginDto {
   password: string;
 }
 
+export interface RestaurantsDto {
+  page?: number | null;
+}
+
 export interface VerifyEmailDto {
   code: string;
 }
