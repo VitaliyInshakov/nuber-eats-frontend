@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { gql, useQuery } from "@apollo/client";
+
 import { restaurantsPageQuery, restaurantsPageQueryVariables } from "../../__generated__/restaurantsPageQuery";
+import Restaurant from "../../components/restaurant";
 
 const RESTAURANTS_QUERY = gql`
     query restaurantsPageQuery($input: RestaurantsDto!) {
@@ -34,13 +36,18 @@ const RESTAURANTS_QUERY = gql`
 `;
 
 const Restaurants = () => {
+    const [page, setPage] = useState(1);
     const { data, loading } = useQuery<restaurantsPageQuery, restaurantsPageQueryVariables>(RESTAURANTS_QUERY, {
         variables: {
             input: {
-                page: 1,
+                page,
             },
         },
     });
+
+    const onNextPageClick = () => setPage(prevState => prevState++);
+    const onPrevPageClick = () => setPage(prevState => prevState--);
+
     return (
         <div>
             <form className="bg-gray-800 w-full py-40 flex items-center justify-center">
@@ -52,7 +59,7 @@ const Restaurants = () => {
             </form>
             <div>
                 {!loading &&
-                    <div className="max-w-screen-2xl mx-auto mt-8">
+                    <div className="max-w-screen-2xl pb-20 mx-auto mt-8">
                         <div className="flex justify-around max-w-sm mx-auto">
                             {data?.allCategories.categories?.map(category => (
                                 <div className="flex flex-col group items-center cursor-pointer">
@@ -64,19 +71,32 @@ const Restaurants = () => {
                                 </div>
                             ))}
                         </div>
-                        <div className="grid mt-10 grid-cols-3 gap-x-5 gap-y-10">
-                            {data?.restaurants.results?.map(restaurant => (
-                                <div>
-                                    <div
-                                        style={{ backgroundImage: `url(${restaurant.coverImage})` }}
-                                        className="bg-red-500 bg-cover bg-center mb-3 py-28"
-                                    />
-                                    <h3 className="text-xl font-medium">{restaurant.name}</h3>
-                                    <span className="border-t-2 border-gray-200">
-                                      {restaurant.category?.name}
-                                    </span>
-                                </div>
+                        <div className="grid mt-16 grid-cols-3 gap-x-5 gap-y-10">
+                            {data?.restaurants.results?.map(({ id, coverImage, name, category }) => (
+                                <Restaurant
+                                    id={id}
+                                    coverImage={coverImage}
+                                    name={name}
+                                    categoryName={category?.name || ""}
+                                />
                             ))}
+                        </div>
+                        <div className="grid grid-cols-3 text-center max-w-md items-center max-w-md mx-auto mt-10">
+                            {page > 1 &&
+                            <button
+                                className="font-medium text-2xl focus:outline-none"
+                                onClick={onPrevPageClick}
+                            >&larr;</button>
+                            }
+                            <span className="mx-5">
+                                Page {page} of {data?.restaurants.totalPages}
+                            </span>
+                            {page !== data?.restaurants.totalPages &&
+                                <button
+                                    className="font-medium text-2xl focus:outline-none"
+                                    onClick={onNextPageClick}
+                                >&rarr;</button>
+                            }
                         </div>
                     </div>
                 }
